@@ -1,0 +1,4 @@
+com\logstash\example\jsp\SampleWebJspApplication.class
+com\logstash\example\jsp\logging\LogData.class
+com\logstash\example\jsp\WelcomeController.class
+com\logstash\example\jsp\logging\LogstashLogger.class

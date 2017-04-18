@@ -16,28 +16,63 @@
 
 package com.logstash.example.jsp;
 
-import java.util.Date;
-import java.util.Map;
-
+import com.logstash.example.jsp.logging.LogData;
+import net.logstash.logback.encoder.org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Controller
 public class WelcomeController {
 	public static final Logger LOGGER = getLogger(WelcomeController.class);
+
 	@Value("${application.message:Hello World}")
 	private String message = "Hello World";
 
 	@RequestMapping("/")
-	public String welcome(Map<String, Object> model) {
-		LOGGER.info("Welcome controller loading = " + model);
-		model.put("time", new Date());
-		model.put("message", this.message);
+	public String welcome(Map<String, Object> model, HttpServletRequest request) {
+		try {
+			for (int i = 0; i < 10; i++) {
+				LogData logData = new LogData(UUID.randomUUID().toString(),i,getHeaders(request),"Main body - ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ\n" +
+						"ᛋᚳᛖᚪᛚ᛫ᚦᛖᚪᚻ᛫ᛗᚪᚾᚾᚪ᛫ᚷᛖᚻᚹᛦᛚᚳ᛫ᛗᛁᚳᛚᚢᚾ᛫ᚻᛦᛏ᛫ᛞᚫᛚᚪᚾ\n" +
+						"ᚷᛁᚠ᛫ᚻᛖ᛫ᚹᛁᛚᛖ᛫ᚠᚩᚱ᛫ᛞᚱᛁᚻᛏᚾᛖ᛫ᛞᚩᛗᛖᛋ᛫ᚻᛚᛇᛏᚪᚾ᛬" + RandomStringUtils.randomNumeric(10000));
+				LOGGER.info(logData.toString());
+			}
+
+			model.put("time", new Date());
+			model.put("message", this.message);
+		}catch (Exception e){
+			LogData logData = new LogData(UUID.randomUUID().toString(),500,getHeaders(request),"Exception while accessing welcome page :" + ExceptionUtils.getFullStackTrace(e));
+			LOGGER.error(logData.toString());
+		}
 		return "welcome";
+	}
+
+	public Map<String, String> getHeaders(HttpServletRequest req){
+
+		Enumeration<String> headerNames = req.getHeaderNames();
+		Map<String,String> headerMap = new HashMap<>();
+		while (headerNames.hasMoreElements()) {
+
+			String headerName = headerNames.nextElement();
+
+
+			Enumeration<String> headers = req.getHeaders(headerName);
+			List<String> headerValues = new ArrayList<>();
+			while (headers.hasMoreElements()) {
+				String headerValue = headers.nextElement();
+				headerValues.add(headerValue);
+			}
+			headerMap.put(headerName,headerValues.toString());
+		}
+		return headerMap;
 	}
 
 }
